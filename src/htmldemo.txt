@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<class>
+
+	<student rollno="393">
+		<firstname>Adam</firstname>
+		<lastname>A123</lastname>
+		<nickname>Apple</nickname>
+		<marks>85</marks>
+	</student>
+
+	<student rollno="493">
+		<firstname>Veee</firstname>
+		<lastname>Gupta</lastname>
+		<nickname>vinni</nickname>
+		<marks>95</marks>
+	</student>
+
+	<student rollno="593">
+		<firstname>jasvir</firstname>
+		<lastname>singh</lastname>
+		<nickname>jazz</nickname>
+		<marks>90</marks>
+	</student>
+
+	<student rollno="693">
+		<firstname>James</firstname>
+		<lastname>John</lastname>
+		<nickname>jazz</nickname>
+		<marks>90</marks>
+	</student>
+
+	<student rollno="793">
+		<firstname>Skipper</firstname>
+		<lastname>Sir</lastname>
+		<nickname>Commander</nickname>
+		<marks>90</marks>
+	</student>
+</class>
