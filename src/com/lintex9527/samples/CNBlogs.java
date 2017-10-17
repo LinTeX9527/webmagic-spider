@@ -25,16 +25,24 @@ public class CNBlogs implements PageProcessor{
     @Override
     public void process(Page page) {
 
+        //-----------------------  博客日期 OK--------------------------
         // 为什么始终只能得到第一个博文的日期呢？
         //*[@id="homepage1_HomePageDays_DaysList_ctl02_ImageLink"]
         //page.putField("dayTitle", page.getHtml().xpath("//div[@class='dayTitle']/a/text()").toString());
 
         // 通过这个解析，得到所有的博客日期
         List<String> days = page.getHtml().xpath("//div[@class='dayTitle']/a/text()").all();
-//        for (int i = 0; i < days.size(); i ++){
-//            System.out.println(days.get(i));
-//        }
+        for (int i = 0; i < days.size(); i ++){
+            System.out.println(days.get(i));
+        }
 
+        // ----------------------  博文链接  OK------------------------
+        // 原始的 a 标签如下，想要获取 <a href='xxx'></a> 中 href 的内容，对于的 XPath 就是 /a/@href
+        //<a id="homepage1_HomePageDays_DaysList_ctl04_DayList_TitleUrl_0" class="postTitle2" href="http://www.cnblogs.com/LinTeX9527/p/7298278.html">STM32 内存管理实验</a>
+        List<String> bloglinks = page.getHtml().xpath("//div[@class='postTitle']/a/@href").all();
+        for (int i = 0; i < bloglinks.size(); i ++){
+            System.out.println(bloglinks.get(i));
+        }
 
         // 发现后续链接，继续下一个爬虫
         // 如果下一个链接没有找到则停止爬虫
@@ -47,7 +55,7 @@ public class CNBlogs implements PageProcessor{
     }
 
     public static void main(String[] args) {
-        // 起始页面
+        // 起始页面，是用户博文列表页面的第一页
         Spider.create(new CNBlogs()).addUrl("http://www.cnblogs.com/LinTeX9527/").thread(2).run();
     }
 }
