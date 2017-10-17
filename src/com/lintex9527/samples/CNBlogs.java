@@ -5,7 +5,6 @@ import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.processor.PageProcessor;
 
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -46,7 +45,16 @@ public class CNBlogs implements PageProcessor{
 
         // 发现后续链接，继续下一个爬虫
         // 如果下一个链接没有找到则停止爬虫
-        //page.addTargetRequests(page.getHtml().links().regex("(https://github\\.com/\\w+/\\w+)").all());
+        // 按钮“下一页”的 XPATH 表达式
+        //*[@id="nav_next_page"]/a
+        //div[@class='topicListFooter']/div[@id='nav_next_page']/a/@href
+
+        //List<String> pagelists = page.getHtml().xpath("//div[@class='topicListFooter']/div/a/@href").all();
+        String nextpage = page.getHtml().xpath("//div[@class='topicListFooter']/div/a[starts-with(text(), '下一页')]/@href").toString();
+        if (!nextpage.equals("")){
+            System.out.println("下一页的链接是：" + nextpage);
+            page.addTargetRequest(nextpage);
+        }
     }
 
     @Override
@@ -56,6 +64,8 @@ public class CNBlogs implements PageProcessor{
 
     public static void main(String[] args) {
         // 起始页面，是用户博文列表页面的第一页
-        Spider.create(new CNBlogs()).addUrl("http://www.cnblogs.com/LinTeX9527/").thread(2).run();
+        //Spider.create(new CNBlogs()).addUrl("http://www.cnblogs.com/LinTeX9527/").thread(2).run();
+        //http://www.cnblogs.com/xueweihan/default.html?page=2
+        Spider.create(new CNBlogs()).addUrl("http://www.cnblogs.com/xueweihan/default.html?page=2").thread(2).run();
     }
 }
