@@ -5,7 +5,7 @@ import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.processor.PageProcessor;
 
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  *
@@ -24,48 +24,41 @@ public class CNBlogs implements PageProcessor{
     @Override
     public void process(Page page) {
 
-        //-----------------------  博客日期 OK--------------------------
-        // 为什么始终只能得到第一个博文的日期呢？
-        //*[@id="homepage1_HomePageDays_DaysList_ctl02_ImageLink"]
-        //page.putField("dayTitle", page.getHtml().xpath("//div[@class='dayTitle']/a/text()").toString());
+        // 月份列表的地址格式
+        //http://www.cnblogs.com/xueweihan/archive/2017/09/21.html,
+        String URL_POST = "http://www\\.cnblogs\\.com/xueweihan/archive/\\d+/\\d+\\.html";
 
-        // 通过这个解析，得到所有的博客日期
-        List<String> days = page.getHtml().xpath("//div[@class='dayTitle']/a/text()").all();
-        for (int i = 0; i < days.size(); i ++){
-            System.out.println(days.get(i));
-        }
+        // 调试，本页地址
+        System.out.println("本页地址是：" + page.getUrl().toString());
 
-        // ----------------------  博文链接  OK------------------------
-        // 原始的 a 标签如下，想要获取 <a href='xxx'></a> 中 href 的内容，对于的 XPath 就是 /a/@href
-        //<a id="homepage1_HomePageDays_DaysList_ctl04_DayList_TitleUrl_0" class="postTitle2" href="http://www.cnblogs.com/LinTeX9527/p/7298278.html">STM32 内存管理实验</a>
-        List<String> bloglinks = page.getHtml().xpath("//div[@class='postTitle']/a/@href").all();
-        for (int i = 0; i < bloglinks.size(); i ++){
-            System.out.println(bloglinks.get(i));
-        }
+        // 打印网页，调试用途
+        System.out.println(page.getHtml().getDocument().toString());
 
-        // 发现后续链接，继续下一个爬虫
-        // 如果下一个链接没有找到则停止爬虫
-        // 按钮“下一页”的 XPATH 表达式
-        //*[@id="nav_next_page"]/a
-        //div[@class='topicListFooter']/div[@id='nav_next_page']/a/@href
 
-        //List<String> pagelists = page.getHtml().xpath("//div[@class='topicListFooter']/div/a/@href").all();
-        String nextpage = page.getHtml().xpath("//div[@class='topicListFooter']/div/a[starts-with(text(), '下一页')]/@href").toString();
-        if (!nextpage.equals("")){
-            System.out.println("下一页的链接是：" + nextpage);
-            page.addTargetRequest(nextpage);
+
+        // 找到用户的“随笔档案”中的每个月份的地址链接
+        String expression = "//div[@id=\"sidebar_postarchive\"]/ul";
+        //page.getHtml().xpath("//div[@class=\"articleList\"]").links().regex(URL_POST).all()
+        //ArrayList<String> monthpages = (ArrayList<String>) page.getHtml().links().regex(URL_POST).all();
+        ArrayList<String> monthpages = (ArrayList<String>) page.getHtml().links().all();
+        if (monthpages != null){
+            System.out.println("随笔档案的链接是：" + monthpages.toString());
+            //page.addTargetRequest(monthpages);
         }
     }
 
     @Override
     public Site getSite() {
+        site.setDomain("www.diandian.com")
+                .setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_2) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.65 Safari/537.31");
         return site;
     }
 
     public static void main(String[] args) {
-        // 起始页面，是用户博文列表页面的第一页
-        //Spider.create(new CNBlogs()).addUrl("http://www.cnblogs.com/LinTeX9527/").thread(2).run();
-        //http://www.cnblogs.com/xueweihan/default.html?page=2
-        Spider.create(new CNBlogs()).addUrl("http://www.cnblogs.com/xueweihan/default.html?page=2").thread(2).run();
+
+        // 经过观察，可以从用户首页开始，按照时间归档查找用户每个月份发表的博文
+        String start_url = "http://www.cnblogs.com/xueweihan/";
+        Spider.create(new CNBlogs()).addUrl(start_url).thread(2).run();
+
     }
 }
