@@ -19,6 +19,9 @@ import java.util.ArrayList;
  */
 public class CNBlogs implements PageProcessor{
 
+    // 用户侧边栏---“随笔档案”的请求链接
+    public static final String LINK_SIDECOLUMN = "http://www.cnblogs.com/username/mvc/blog/sidecolumn.aspx?blogApp=username";
+
     private Site site = Site.me().setRetryTimes(3).setSleepTime(100);
 
     @Override
@@ -32,18 +35,18 @@ public class CNBlogs implements PageProcessor{
         System.out.println("本页地址是：" + page.getUrl().toString());
 
         // 打印网页，调试用途
-        System.out.println(page.getHtml().getDocument().toString());
+        //System.out.println(page.getHtml().getDocument().toString());
 
 
 
         // 找到用户的“随笔档案”中的每个月份的地址链接
-        String expression = "//div[@id=\"sidebar_postarchive\"]/ul";
-        //page.getHtml().xpath("//div[@class=\"articleList\"]").links().regex(URL_POST).all()
-        //ArrayList<String> monthpages = (ArrayList<String>) page.getHtml().links().regex(URL_POST).all();
-        ArrayList<String> monthpages = (ArrayList<String>) page.getHtml().links().all();
+        String expression = "//div[@id='sidebar_postarchive']/ul/li/a/@href";
+        ArrayList<String> monthpages = (ArrayList<String>) page.getHtml().xpath(expression).all();
         if (monthpages != null){
-            System.out.println("随笔档案的链接是：" + monthpages.toString());
-            //page.addTargetRequest(monthpages);
+            System.out.println("随笔档案的列表项是：");
+            for (int i = 0; i < monthpages.size(); i++) {
+                System.out.println("" + i + " : " + monthpages.get(i));
+            }
         }
     }
 
@@ -56,8 +59,16 @@ public class CNBlogs implements PageProcessor{
 
     public static void main(String[] args) {
 
+        // 用户名不区分大小写
+        String username = "lintex9527";
+
+        // 构造用户侧边栏 --- “随笔档案”的请求链接
+        String link_sidecolumn = LINK_SIDECOLUMN.replaceAll("username", username);
+        System.out.println("随笔档案地址：" + link_sidecolumn);
+
+
         // 经过观察，可以从用户首页开始，按照时间归档查找用户每个月份发表的博文
-        String start_url = "http://www.cnblogs.com/xueweihan/";
+        String start_url = link_sidecolumn;
         Spider.create(new CNBlogs()).addUrl(start_url).thread(2).run();
 
     }
