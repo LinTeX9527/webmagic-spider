@@ -3,6 +3,7 @@ package com.lintex9527.samples;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
+import us.codecraft.webmagic.pipeline.JsonFilePipeline;
 import us.codecraft.webmagic.processor.PageProcessor;
 
 import java.util.ArrayList;
@@ -18,6 +19,10 @@ import java.util.ArrayList;
  * 3、
  */
 public class CNBlogs implements PageProcessor{
+
+    // 数据持久化时的 KEY
+    public static final String KEY_BLOG_TITLE = "KEY_BLOG_TITLE";
+    public static final String KEY_BLOG_POSTDATE = "KEY_BLOG_POSTDATE";
 
     // 用户侧边栏---“随笔档案”的请求链接
     public static final String LINK_SIDECOLUMN = "http://www.cnblogs.com/username/mvc/blog/sidecolumn.aspx?blogApp=username";
@@ -81,12 +86,14 @@ public class CNBlogs implements PageProcessor{
             String expre_title = "//div[@id='topics']/div[@class='post']/h1[@class='postTitle']/a/text()";
             String blog_title = page.getHtml().xpath(expre_title).toString();
             System.out.println("博文标题------------------->" + blog_title);
+            page.putField(KEY_BLOG_TITLE, blog_title);
 
             // 博文发布日期
             //div[@class='postDesc']/span[@id='post-date']/text()
             String expre_date = "//div[@class='postDesc']/span[@id='post-date']/text()";
             String blog_date = page.getHtml().xpath(expre_date).toString();
             System.out.println("发布日期------------------>" + blog_date);
+            page.putField(KEY_BLOG_POSTDATE, blog_date);
         }
     }
 
@@ -109,7 +116,8 @@ public class CNBlogs implements PageProcessor{
 
         // 经过观察，可以从用户首页开始，按照时间归档查找用户每个月份发表的博文
         String start_url = link_sidecolumn;
-        Spider.create(new CNBlogs()).addUrl(start_url).thread(2).run();
+        // 这里的 JsonFilePipeline() 默认保存文件到 D:\\datas\webmagic 目录下面
+        Spider.create(new CNBlogs()).addUrl(start_url).thread(2).addPipeline(new JsonFilePipeline("/datas/cnblogs")).run();
 
     }
 }
