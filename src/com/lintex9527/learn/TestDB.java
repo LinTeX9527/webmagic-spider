@@ -80,6 +80,9 @@ public class TestDB {
                 System.out.println("--------------------------------------------------");
                 int num = Integer.parseInt(ans.trim(), 10);
 
+                if (num <1 || num > 5){
+                    num = 1;
+                }
                 switch (num){
                     case 1:
                         // 查询
@@ -143,10 +146,35 @@ public class TestDB {
                             psql.setInt(2, empno);
                             psql.executeUpdate();
                         }
-                        
+
                         break;
                     case 4:
                         // 删除
+                        // 删除重名的 "李晓峰"
+                        // SELECT * FROM emp WHERE ename = '李晓峰' ORDER BY sal ASC;
+                        // int total = resultSet.getFetchSize() 获取重名的个数，只保留最后一个。
+                        String sql_lxf = "SELECT * FROM emp WHERE ename = '李晓峰' ORDER BY sal ASC";
+                        resultSet = statement.executeQuery(sql_lxf);
+                        // 得到重名的个数
+                        resultSet.last();
+                        int total = resultSet.getRow();
+                        System.out.println("李晓峰总共有 " + total);
+
+                        // 还要使用结果集，就把指针再移到初始化的位置
+                        resultSet.beforeFirst();
+                        int index = 0; // 只是删除位置的索引号，最大值为 total-1
+                        while (resultSet.next()){
+                            index ++;
+                            if (index <= total-1){
+                                // 得到 empno 并删除这个记录
+                                empno = resultSet.getInt("empno");
+
+                                psql = connection.prepareStatement("DELETE FROM emp WHERE empno = ?");
+                                psql.setInt(1, empno);
+                                psql.executeUpdate();
+                            }
+                        }
+                        System.out.println("删除操作结束");
 
                         break;
                     case 5:
@@ -157,11 +185,6 @@ public class TestDB {
                         break;
                 }
             }
-
-
-
-
-
 
             // 最后必须关闭连接
             connection.close();
@@ -175,7 +198,7 @@ public class TestDB {
         } catch (ParseException e) {
             e.printStackTrace();
         } finally {
-            System.out.println("操作结束。");
+            System.out.println("操作结束，退出程序");
         }
 
     }
